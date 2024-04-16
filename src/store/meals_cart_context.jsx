@@ -21,7 +21,7 @@ export default function MealsContextProvider({ children }) {
           ...newMeals[mealExistIndex],
           count: newMeals[mealExistIndex].count + 1,
         };
-        return { ...prev, meals: newMeals };
+        return { ...prev, meals: [...newMeals] };
       }
       meal = { ...meal, count: 1 };
       return { ...prev, meals: [...prev.meals, meal] };

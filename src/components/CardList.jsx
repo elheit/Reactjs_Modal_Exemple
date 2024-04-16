@@ -22,15 +22,7 @@ const CardList = () => {
       {meals.length === 0 && <p>loading...</p>}
       {meals &&
         meals.map((meal) => {
-          return (
-            <Card
-              key={meal.id}
-              description={meal.description}
-              image={meal.image}
-              name={meal.name}
-              price={meal.price}
-            />
-          );
+          return <Card key={meal.id} meal={meal} />;
         })}
     </div>
   );

@@ -66,6 +66,8 @@ export default function MealsContextProvider({ children }) {
 
   function addMealToCart(meal) {
     mealsCartDispatch({
+      // you can add any thing a string a integer
+      // or add any numbre of elements inside this object
       type: "addMealToCart",
       payload: meal,
     });

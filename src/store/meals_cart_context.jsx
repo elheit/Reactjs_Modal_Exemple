@@ -1,4 +1,4 @@
-import { createContext, useState } from "react";
+import { createContext, useReducer } from "react";
 
 export const MealsContext = createContext({
   meals: [],
@@ -9,69 +9,88 @@ export const MealsContext = createContext({
   totalAmount: 0,
 });
 
+function CartMealsReducer(state, action) {
+  if (action.type === "addMealToCart") {
+    const mealExistIndex = state.meals.findIndex(
+      (item) => item.id === action.payload.id
+    );
+    console.log("action", action);
+    if (mealExistIndex !== -1) {
+      const newMeals = [...state.meals];
+      newMeals[mealExistIndex] = {
+        ...newMeals[mealExistIndex],
+        count: newMeals[mealExistIndex].count + 1,
+      };
+      return { ...state, meals: [...newMeals] };
+    }
+    action.payload = { ...action.payload, count: 1 };
+    return { ...state, meals: [...state.meals, action.payload] };
+  }
+  if (action.type === "incrementCount") {
+    const mealExistIndex = state.meals.findIndex(
+      (item) => item.id === action.payload
+    );
+    if (mealExistIndex !== -1) {
+      const newMeals = [...state.meals];
+      newMeals[mealExistIndex] = {
+        ...newMeals[mealExistIndex],
+        count: newMeals[mealExistIndex].count + 1,
+      };
+      return { ...state, meals: [...newMeals] };
+    }
+  }
+  if (action.type === "decrementCount") {
+    const mealExistIndex = state.meals.findIndex(
+      (item) => item.id === action.payload
+    );
+    if (mealExistIndex !== -1) {
+      const newMeals = [...state.meals];
+      if (newMeals[mealExistIndex].count <= 1) {
+        newMeals.splice(mealExistIndex, 1);
+      } else {
+        newMeals[mealExistIndex] = {
+          ...newMeals[mealExistIndex],
+          count: newMeals[mealExistIndex].count - 1,
+        };
+      }
+      return { ...state, meals: [...newMeals] };
+    }
+  }
+  return state;
+}
+
 export default function MealsContextProvider({ children }) {
-  const [mealsCart, setMealsCart] = useState({
+  const [mealsCartState, mealsCartDispatch] = useReducer(CartMealsReducer, {
     meals: [],
   });
 
   function addMealToCart(meal) {
-    setMealsCart((prev) => {
-      const mealExistIndex = prev.meals.findIndex(
-        (item) => item.id === meal.id
-      );
-      if (mealExistIndex !== -1) {
-        const newMeals = [...prev.meals];
-        newMeals[mealExistIndex] = {
-          ...newMeals[mealExistIndex],
-          count: newMeals[mealExistIndex].count + 1,
-        };
-        return { ...prev, meals: [...newMeals] };
-      }
-      meal = { ...meal, count: 1 };
-      return { ...prev, meals: [...prev.meals, meal] };
+    mealsCartDispatch({
+      type: "addMealToCart",
+      payload: meal,
     });
   }
   function incrementCount(id) {
-    setMealsCart((prev) => {
-      const mealExistIndex = prev.meals.findIndex((item) => item.id === id);
-      if (mealExistIndex !== -1) {
-        const newMeals = [...prev.meals];
-        newMeals[mealExistIndex] = {
-          ...newMeals[mealExistIndex],
-          count: newMeals[mealExistIndex].count + 1,
-        };
-        return { ...prev, meals: [...newMeals] };
-      }
+    mealsCartDispatch({
+      type: "incrementCount",
+      payload: id,
     });
-    console.log("id", id);
   }
   function decrementCount(id) {
-    setMealsCart((prev) => {
-      const mealExistIndex = prev.meals.findIndex((item) => item.id === id);
-      if (mealExistIndex !== -1) {
-        const newMeals = [...prev.meals];
-        if (newMeals[mealExistIndex].count <= 1) {
-          newMeals.splice(mealExistIndex, 1);
-        } else {
-          newMeals[mealExistIndex] = {
-            ...newMeals[mealExistIndex],
-            count: newMeals[mealExistIndex].count - 1,
-          };
-        }
-        return { ...prev, meals: [...newMeals] };
-      }
+    mealsCartDispatch({
+      type: "decrementCount",
+      payload: id,
     });
-    console.log("id", id);
   }
 
-  const totalAmount = mealsCart.meals.reduce(
+  const totalAmount = mealsCartState.meals.reduce(
     (total, meal) => total + meal.price * meal.count,
     0
   );
   const ctxValue = {
-    meals: mealsCart.meals,
+    meals: mealsCartState.meals,
     addMealToCart: addMealToCart,
-    nbrCartMeals: mealsCart.meals.length,
+    nbrCartMeals: mealsCartState.meals.length,
     incrementCount,
     decrementCount,
     totalAmount,

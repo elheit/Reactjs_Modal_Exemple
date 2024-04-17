@@ -15,15 +15,19 @@ const Cart = ({ closeDialog }) => {
               <li className="cart-item" key={item.id}>
                 <p>{`${item.name} - ${item.count} - $${item.price}`}</p>
                 <p className="cart-item-actions">
-                  <button>-</button>
-                  <span>1</span>
-                  <button>+</button>
+                  <button onClick={() => mealsCtx.decrementCount(item.id)}>
+                    -
+                  </button>
+                  <span>{item.count}</span>
+                  <button onClick={() => mealsCtx.incrementCount(item.id)}>
+                    +
+                  </button>
                 </p>
               </li>
             );
           })}
       </ul>
-      <p className="cart-total">$12.99</p>
+      <p className="cart-total">{`$${mealsCtx.totalAmount}`}</p>
       <p className="modal-actions">
         <button className="text-button undefined" onClick={closeDialog}>
           Close
